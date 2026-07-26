@@ -1,0 +1,21 @@
+{
+  "name": "video-game-lore-rag",
+  "version": "1.0.0",
+  "description": "A RAG pipeline for searching video game lore across multiple games, using local embeddings and Claude for grounded answers.",
+  "main": "query.js",
+  "scripts": {
+    "scrape": "node scraper.js",
+    "build-index": "node buildIndex.js",
+    "query": "node query.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@xenova/transformers": "^2.17.2",
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
