@@ -113,20 +113,20 @@ module.exports={
       "https://elderscrolls.fandom.com/wiki/Thieves_Guild"
     ]
   },
-    //This is the directory for storing raw data
+    //This is the directory for storing raw data or the data that is scraped from the urls
     RAW_DATA_DIR:"data/raw",
-    //This is where vector index and metadata is stored
+    //This is where vector index and metadata is stored after getting converted by the embedding model
     INDEX_DIR:"data/index",
     INDEX_FILE:"data/index/lore_index.json",
-   //describing the chunk size and its overlap for rag
+   //describing the chunk size and its overlap
     CHUNK_SIZE:800,
     CHUNK_OVERLAP:150,
-    //embedding model that runs locally via xenova/transformers
+    //embedding model that runs locally via xenova/transformers which converts raw data to vector data
     EMBEDDING_MODEL:"Xenova/all-MiniLM-L6-v2",
     //number of chunks to retrieve per query
     TOP_K:10,
     //claude model declaration
-    CLAUDE_MODEL:"calude-sonnet-4-6",
+    CLAUDE_MODEL:"claude-sonnet-4-6",
     //delay time for scraping wiki pages
     REQUEST_DELAY_MS:15000,
 };
