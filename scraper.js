@@ -15,12 +15,12 @@ const axios = require("axios");
 const cheerio = require("cheerio");
  
 const { WIKI_SOURCES, RAW_DATA_DIR, REQUEST_DELAY_MS } = require("./config");
- 
+ //headers tell the server what is basically accessing it 
 const HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (compatible; LoreResearchBot/1.0; +https://example.com/bot-info)",
 };
- 
+ //the slugify function removes word ,hyphens and white spaces including the trailing ones
 function slugify(text) {
   return text
     .toLowerCase()
@@ -32,7 +32,11 @@ function slugify(text) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
- 
+ /**
+  * @param {*} url takes the url as parameter
+  * @returns html data as response a
+  */
+
 async function fetchPage(url) {
   try {
     const res = await axios.get(url, { headers: HEADERS, timeout: 15000 });
@@ -42,43 +46,47 @@ async function fetchPage(url) {
     return null;
   }
 }
- 
+ /**
+  * 
+  * @param {*} html data for extracting based on tags
+  * @returns data from specific headers for rag pipeline to work
+  */
 function extractArticleText(html) {
   const $ = cheerio.load(html);
- 
+ //extracts the tile using the respected header
   const titleEl = $(".page-header__title").first().length
     ? $(".page-header__title").first()
     : $("h1").first();
+    //removes extra white spaces from the title content
   const title = titleEl.text().trim() || "untitled";
- 
   const content = $(".mw-parser-output").first();
   if (content.length === 0) {
     return { title, body: "" };
   }
  
-  // Remove elements that are not useful article prose
+  // Avoiding the unnecessary tags which are not essential for the rag pipeline
   content
     .find(
       "table, aside, sup.reference, div.toc, style, script, div.navbox, div.gallery, .mw-editsection"
     )
     .remove();
- 
+ //extracting the body from the respected tags from the fandom page and removing the trailing white spaces
   const paragraphs = [];
   content.find("p, h2, h3, li").each((_, el) => {
     const text = $(el).text().replace(/\s+/g, " ").trim();
     if (text) paragraphs.push(text);
   });
- 
+ //contatenates all the information , replaces all the square bracket citation markings and reduces in between paragraph spacing
   let body = paragraphs.join("\n\n");
   body = body.replace(/\[\d+\]/g, ""); // strip citation markers like [1]
   body = body.replace(/\n{3,}/g, "\n\n").trim();
  
   return { title, body };
 }
- 
+ //function for scarping the data from fandom pages based on the entries given in the object
 async function scrapeAll() {
   fs.mkdirSync(RAW_DATA_DIR, { recursive: true });
- 
+  //creating game path directory using the raw data directory and title of game as /data/raw/game_name and having folders with particular game name inside the directory
   for (const [game, urls] of Object.entries(WIKI_SOURCES)) {
     const gameDir = path.join(RAW_DATA_DIR, slugify(game));
     fs.mkdirSync(gameDir, { recursive: true });
