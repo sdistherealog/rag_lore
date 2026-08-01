@@ -52,6 +52,7 @@ async function fetchPage(url) {
   * @returns data from specific headers for rag pipeline to work
   */
 function extractArticleText(html) {
+  //from the html response , cheerio extracts data using specified tags
   const $ = cheerio.load(html);
  //extracts the tile using the respected header
   const titleEl = $(".page-header__title").first().length
