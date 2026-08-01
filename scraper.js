@@ -75,12 +75,14 @@ function extractArticleText(html) {
  //extracting the body from the respected tags from the fandom page and removing the trailing white spaces
   const paragraphs = [];
   content.find("p, h2, h3, li").each((_, el) => {
+    //removing white spaces from the paragraphs
     const text = $(el).text().replace(/\s+/g, " ").trim();
     if (text) paragraphs.push(text);
   });
  //contatenates all the information , replaces all the square bracket citation markings and reduces in between paragraph spacing
   let body = paragraphs.join("\n\n");
   body = body.replace(/\[\d+\]/g, ""); // strip citation markers like [1]
+  //if there are three spaces after each paragraph , bringing it back to two spaces only
   body = body.replace(/\n{3,}/g, "\n\n").trim();
  
   return { title, body };
@@ -90,6 +92,7 @@ async function scrapeAll() {
   fs.mkdirSync(RAW_DATA_DIR, { recursive: true });
   //creating game path directory using the raw data directory and title of game as /data/raw/game_name and having folders with particular game name inside the directory
   for (const [game, urls] of Object.entries(WIKI_SOURCES)) {
+    //creating a game directory by joining the raw dir path with the name of the game
     const gameDir = path.join(RAW_DATA_DIR, slugify(game));
     fs.mkdirSync(gameDir, { recursive: true });
  
@@ -104,10 +107,12 @@ async function scrapeAll() {
         console.log(`  [!] No article body found for ${url}, skipping.`);
         continue;
       }
- 
+    //creating file name in the game directory
       const filename = `${slugify(title)}.txt`;
+      //creating the file paths to the game directory for the necessary games
       const filepath = path.join(gameDir, filename);
       const fileContent = `# ${title}\n# Game: ${game}\n# Source: ${url}\n\n${body}`;
+      //writing all the information in the file about the game
       fs.writeFileSync(filepath, fileContent, "utf-8");
  
       console.log(`  Saved -> ${filepath} (${body.length} chars)`);
