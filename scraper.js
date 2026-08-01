@@ -34,7 +34,7 @@ function sleep(ms) {
 }
  /**
   * @param {*} url takes the url as parameter
-  * @returns html data as response a
+  * @returns html data as response
   */
 
 async function fetchPage(url) {
