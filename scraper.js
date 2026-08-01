@@ -60,6 +60,7 @@ function extractArticleText(html) {
     : $("h1").first();
     //removes extra white spaces from the title content
   const title = titleEl.text().trim() || "untitled";
+  //extracting body data from html
   const content = $(".mw-parser-output").first();
   if (content.length === 0) {
     return { title, body: "" };
