@@ -131,7 +131,7 @@ async function buildIndex() {
   const texts = chunkRecords.map((r) => r.text);
   //embedding the text into vectors
   const embeddings = await embedTexts(texts);
-
+//field embedding in every record represents a set of vectors 
   chunkRecords.forEach((record, i) => {
     record.embedding = normalize(embeddings[i]);
   });
