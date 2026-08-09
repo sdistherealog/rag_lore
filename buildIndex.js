@@ -11,11 +11,11 @@
  * Usage:
  *   node buildIndex.js
  */
- //the fs module for reading file in node js 
+//the fs module for reading file in node js 
 const fs = require("fs");
 // the path module for file path
 const path = require("path");
- // importing all the necessary constants from config file for rag pipeline to work
+// importing all the necessary constants from config file for rag pipeline to work
 const {
   RAW_DATA_DIR,
   INDEX_DIR,
@@ -24,13 +24,13 @@ const {
   CHUNK_OVERLAP,
   EMBEDDING_MODEL,
 } = require("./config");
- //function to chunk text information taken by the scrappera
+//function to chunk text information taken by the scrappera
 function chunkText(text, chunkSize, overlap) {
   //empty chunk array to store the chunks of text
   const chunks = [];
   let start = 0;
   const textLen = text.length;
- 
+
   while (start < textLen) {
     //assigning the end until which chunking is to be done
     const end = start + chunkSize;
@@ -41,10 +41,10 @@ function chunkText(text, chunkSize, overlap) {
     if (end >= textLen) break;
     start = end - overlap; // move forward, keeping some overlap
   }
- //return the chunk array
+  //return the chunk array
   return chunks;
 }
- 
+
 function walkTxtFiles(dir) {
   // initialising a result array to add all the text file address like data/raw/skyrim/lore1.txt
   let results = [];
@@ -63,7 +63,7 @@ function walkTxtFiles(dir) {
   // results now contains every .txt file path found anywhere under the original dir
   return results;
 }
- // the load document takes the path of the .txt files  where it displays the name of the game , the source file and the text content of the file
+// the load document takes the path of the .txt files  where it displays the name of the game , the source file and the text content of the file
 function loadDocuments() {
   if (!fs.existsSync(RAW_DATA_DIR)) return [];
   const files = walkTxtFiles(RAW_DATA_DIR);
@@ -73,19 +73,20 @@ function loadDocuments() {
     text: fs.readFileSync(filepath, "utf-8"),
   }));
 }
- 
+
 function normalize(vec) {
   let norm = 0;
   for (const v of vec) norm += v * v;
   norm = Math.sqrt(norm) || 1;
   return Array.from(vec, (v) => v / norm);
 }
- 
+// the following function is used to embed texts
 async function embedTexts(texts) {
-  // Lazy-loaded because @xenova/transformers is an ESM package
+  // the pipeline is the xenova transformer which converts text into embeddings
   const { pipeline } = await import("@xenova/transformers");
+  //the extractor is the declaration of the pipeline which uses the embedding model from the imports from config file
   const extractor = await pipeline("feature-extraction", EMBEDDING_MODEL);
- 
+  //the embedding array is the actual array where chunks of texts are converted into embeddings 
   const embeddings = [];
   for (let i = 0; i < texts.length; i++) {
     const output = await extractor(texts[i], { pooling: "mean", normalize: true });
@@ -97,19 +98,19 @@ async function embedTexts(texts) {
   process.stdout.write("\n");
   return embeddings;
 }
- 
+//build index is used for building the record index that will hold information about each and every game
 async function buildIndex() {
+  // intialise a directory for storing the particular record index
   fs.mkdirSync(INDEX_DIR, { recursive: true });
- 
+  //load the documents
   const docs = loadDocuments();
   if (docs.length === 0) {
     console.log(`No documents found in ${RAW_DATA_DIR}. Run scraper.js first.`);
     return;
   }
- 
   console.log(`Loaded ${docs.length} documents. Chunking...`);
- 
   const chunkRecords = [];
+  //building the chunk record 
   for (const doc of docs) {
     const chunks = chunkText(doc.text, CHUNK_SIZE, CHUNK_OVERLAP);
     chunks.forEach((chunk, i) => {
@@ -121,34 +122,35 @@ async function buildIndex() {
       });
     });
   }
- 
+
   console.log(
     `Created ${chunkRecords.length} chunks. Loading embedding model ` +
-      `'${EMBEDDING_MODEL}' (first run downloads the model)...`
+    `'${EMBEDDING_MODEL}' (first run downloads the model)...`
   );
- 
+//extracting text information from the chunks
   const texts = chunkRecords.map((r) => r.text);
+  //embedding the text into vectors
   const embeddings = await embedTexts(texts);
- 
+
   chunkRecords.forEach((record, i) => {
     record.embedding = normalize(embeddings[i]);
   });
- 
+
   fs.writeFileSync(
     INDEX_FILE,
     JSON.stringify({ records: chunkRecords }, null, 2),
     "utf-8"
   );
- 
+
   console.log(`\nIndex built with ${chunkRecords.length} vectors.`);
   console.log(`Saved index -> ${INDEX_FILE}`);
 }
- 
+
 if (require.main === module) {
   buildIndex().catch((err) => {
     console.error(err);
     process.exit(1);
   });
 }
- 
+
 module.exports = { buildIndex, chunkText };
