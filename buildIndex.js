@@ -11,10 +11,11 @@
  * Usage:
  *   node buildIndex.js
  */
- 
+ //the fs module for reading file in node js 
 const fs = require("fs");
+// the path module for file path
 const path = require("path");
- 
+ // importing all the necessary constants from config file for rag pipeline to work
 const {
   RAW_DATA_DIR,
   INDEX_DIR,
@@ -23,20 +24,24 @@ const {
   CHUNK_OVERLAP,
   EMBEDDING_MODEL,
 } = require("./config");
- 
+ //function to chunk text information taken by the scrappera
 function chunkText(text, chunkSize, overlap) {
+  //empty chunk array to store the chunks of text
   const chunks = [];
   let start = 0;
   const textLen = text.length;
  
   while (start < textLen) {
+    //assigning the end until which chunking is to be done
     const end = start + chunkSize;
+    //chunking the text for getting the appropiate chunk
     const chunk = text.slice(start, end).trim();
+    //push the chunks into the chunk array 
     if (chunk) chunks.push(chunk);
     if (end >= textLen) break;
     start = end - overlap; // move forward, keeping some overlap
   }
- 
+ //return the chunk array
   return chunks;
 }
  
