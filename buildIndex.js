@@ -63,7 +63,7 @@ function walkTxtFiles(dir) {
   // results now contains every .txt file path found anywhere under the original dir
   return results;
 }
- 
+ // the load document takes the path of the .txt files  where it displays the name of the game , the source file and the text content of the file
 function loadDocuments() {
   if (!fs.existsSync(RAW_DATA_DIR)) return [];
   const files = walkTxtFiles(RAW_DATA_DIR);
