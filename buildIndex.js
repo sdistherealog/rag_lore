@@ -46,20 +46,22 @@ function chunkText(text, chunkSize, overlap) {
 }
  
 function walkTxtFiles(dir) {
-  //initialising a result array to add all the text files
+  // initialising a result array to add all the text files
   let results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    //fullpath is the path formed by joining the directory path with entry name path as /dir/game
+    // fullPath is the path formed by joining the directory path with the entry's own name
+    // e.g. dir = "data/raw", entry.name = "skyrim" -> fullPath = "data/raw/skyrim"
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      //if it is a directory , concat till you find a file inside the folder or directory
+      // if it's a folder, recursively search everything inside it (which may itself
+      // contain more folders), and merge whatever .txt paths it finds into results
       results = results.concat(walkTxtFiles(fullPath));
-      //further find if it is a file or not and if it is a file with txt , push it into results.
     } else if (entry.isFile() && entry.name.endsWith(".txt")) {
+      // if it's a file AND its name ends in .txt, add its path to results
       results.push(fullPath);
     }
   }
-  //the results array contains all the filepath to games
+  // results now contains every .txt file path found anywhere under the original dir
   return results;
 }
  
