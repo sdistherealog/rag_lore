@@ -46,15 +46,14 @@ function chunkText(text, chunkSize, overlap) {
 }
  
 function walkTxtFiles(dir) {
-  // initialising a result array to add all the text files
+  // initialising a result array to add all the text file address like data/raw/skyrim/lore1.txt
   let results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     // fullPath is the path formed by joining the directory path with the entry's own name
     // e.g. dir = "data/raw", entry.name = "skyrim" -> fullPath = "data/raw/skyrim"
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      // if it's a folder, recursively search everything inside it (which may itself
-      // contain more folders), and merge whatever .txt paths it finds into results
+      // if it's a folder, recursively search everything inside it  to find all the text files inside it
       results = results.concat(walkTxtFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith(".txt")) {
       // if it's a file AND its name ends in .txt, add its path to results
