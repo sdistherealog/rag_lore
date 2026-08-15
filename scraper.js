@@ -129,6 +129,4 @@ if (require.main === module) {
     process.exit(1);
   });
 }
- 
 module.exports = { scrapeAll, slugify, extractArticleText };
- 
