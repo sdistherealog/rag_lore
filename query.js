@@ -65,16 +65,15 @@ class LoreRAG {
     }
     return this.extractorPromise;
   }
- 
+ //it is used to convert texts into embedding vector
   async embedQuery(text) {
     const extractor = await this.getExtractor();
     const output = await extractor(text, { pooling: "mean", normalize: true });
     return Array.from(output.data);
   }
- 
+  //comparing vectors on the basis of their similarity
   async retrieve(question, topK = TOP_K) {
     const queryVec = await this.embedQuery(question);
- 
     const scored = this.records.map((r) => ({
       ...r,
       score: cosineSim(queryVec, r.embedding),
