@@ -82,7 +82,7 @@ class LoreRAG {
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, topK);
   }
- 
+  //function to answer questions given by user to the AI model
   async answer(question) {
     const chunks = await this.retrieve(question);
  
