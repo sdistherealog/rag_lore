@@ -116,6 +116,10 @@ class LoreRAG {
  
 async function main() {
   const rag = new LoreRAG();
+  /**
+   * args contains the query from the command line prompt 
+   * It is sliced such that the main context is brought into attention
+   */
   const args = process.argv.slice(2);
  
   if (args.length > 0) {
