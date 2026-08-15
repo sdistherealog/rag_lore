@@ -18,13 +18,17 @@
  *   node query.js "Who is Marika the Eternal?"
  */
  
+//built in file system of the node js used to read the file
 const fs = require("fs");
+//path module to work with the path of the file
 const path = require("path");
+//readline is used to read the filename from the file
 const readline = require("readline");
+//it is used to read the user input from the terminal line by line
 const Anthropic = require("@anthropic-ai/sdk");
- 
+ //necessary imports from the config file
 const { INDEX_FILE, EMBEDDING_MODEL, TOP_K, CLAUDE_MODEL } = require("./config");
- 
+ //The prompt which tells the AI model to perform a necessary task
 const SYSTEM_PROMPT = `You are a video game lore expert. Answer the user's \
 question using ONLY the lore excerpts provided in the context below. \
 If the context doesn't contain enough information to answer, say so \
@@ -44,12 +48,16 @@ class LoreRAG {
         "Index not found. Run buildIndex.js first (after running scraper.js)."
       );
     }
+    //get the index filed data
     const raw = JSON.parse(fs.readFileSync(INDEX_FILE, "utf-8"));
+    //extracting records array from the index file
     this.records = raw.records;
-    this.client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
+    //initialises an instance for claude to work , also checks for anthropic keys
+    this.client = new Anthropic();
+    //it is used to load the embedding model so that subsequent loads can be avoided
     this.extractorPromise = null;
   }
- 
+ //initialises the embedding model into the extractor promise
   async getExtractor() {
     if (!this.extractorPromise) {
       const { pipeline } = await import("@xenova/transformers");
