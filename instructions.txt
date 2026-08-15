@@ -1,0 +1,3 @@
+1. First run scraper.js as it pulls out all the information from wiki pages onto which chunking and vectorisation is done
+2. Secondly run the buildindex.js as it chunks and embeds the text in json vector indexes.
+3. Thirdly , run the query.js which runs the claude for answering questions
